@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automata Theory: Regex Filter System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica', Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: #f0f2f5;
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .info-frame {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .rules-title {
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        .rules-list {
+            color: #555;
+            line-height: 1.6;
+            text-align: left;
+        }
+
+        .input-container {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        #usernameInput {
+            width: 100%;
+            max-width: 350px;
+            padding: 12px;
+            font-size: 16px;
+            font-family: 'Courier New', monospace;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        #usernameInput:focus {
+            border-color: #3498db;
+        }
+
+        #usernameInput.valid {
+            color: #2ecc71;
+            border-color: #2ecc71;
+        }
+
+        #usernameInput.invalid {
+            color: #e74c3c;
+            border-color: #e74c3c;
+        }
+
+        .status-label {
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 6px;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .status-waiting {
+            color: #777;
+        }
+
+        .status-valid {
+            color: #2ecc71;
+        }
+
+        .status-invalid {
+            color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">Username Syntax Validator</div>
+        
+        <div class="info-frame">
+            <div class="rules-title">RULES:</div>
+            <div class="rules-list">
+                1. Must start with a Letter.<br>
+                2. Length: 5 - 15 characters.<br>
+                3. Allowed: Alphanumeric & Underscore.<br>
+                4. Cannot end with an Underscore.
+            </div>
+        </div>
+
+        <div class="input-container">
+            <input 
+                type="text" 
+                id="usernameInput" 
+                placeholder="Enter username..."
+                autocomplete="off"
+            >
+        </div>
+
+        <div id="statusLabel" class="status-label status-waiting">
+            Waiting for input...
+        </div>
+    </div>
+
+    <script>
+        // --- THEORETICAL DEFINITION ---
+        // The Regex Pattern representing the Regular Language L:
+        // ^             : Start of string
+        // [a-zA-Z]      : Initial State (must be a letter)
+        // [a-zA-Z0-9_]  : Intermediate State transitions (alphanumeric + _)
+        // {3,13}        : Repeats previous set (adjusting for start/end char to equal 5-15 total)
+        // [a-zA-Z0-9]   : Final Acceptance State (must not end with underscore)
+        // $             : End of string
+        const usernamePattern = /^[a-zA-Z][a-zA-Z0-9_]{3,13}[a-zA-Z0-9]$/;
+
+        // Get DOM elements
+        const usernameInput = document.getElementById('usernameInput');
+        const statusLabel = document.getElementById('statusLabel');
+
+        // Validate input function
+        function validateInput() {
+            const currentText = usernameInput.value;
+
+            // Edge case: Empty string
+            if (!currentText) {
+                statusLabel.textContent = 'Waiting for input...';
+                statusLabel.className = 'status-label status-waiting';
+                usernameInput.className = '';
+                return;
+            }
+
+            // --- THE VALIDATION (Simulating the Machine) ---
+            if (usernamePattern.test(currentText)) {
+                // ACCEPT STATE
+                statusLabel.textContent = '✓ Valid Username';
+                statusLabel.className = 'status-label status-valid';
+                usernameInput.className = 'valid';
+            } else {
+                // REJECT STATE (Trap State)
+                analyzeError(currentText);
+                usernameInput.className = 'invalid';
+            }
+        }
+
+        // Analyze error function
+        function analyzeError(text) {
+            /**
+             * Provides detailed feedback on why the string was rejected,
+             * effectively describing which 'state' the automata failed at.
+             */
+            let msg = '✘ Invalid: ';
+
+            if (text.length < 5) {
+                msg += 'Too short (min 5)';
+            } else if (text.length > 15) {
+                msg += 'Too long (max 15)';
+            } else if (!/^[a-zA-Z]/.test(text)) {
+                msg += 'Must start with a letter';
+            } else if (text[text.length - 1] === '_') {
+                msg += "Cannot end with '_'";
+            } else if (!/^[a-zA-Z0-9_]*$/.test(text)) {
+                msg += 'Illegal characters found';
+            } else {
+                msg += 'Syntax error';
+            }
+
+            statusLabel.textContent = msg;
+            statusLabel.className = 'status-label status-invalid';
+        }
+
+        // Bind the input event to validator function
+        // This simulates the transition of states in an automata as inputs are consumed
+        usernameInput.addEventListener('input', validateInput);
+        usernameInput.addEventListener('keyup', validateInput);
+    </script>
+</body>
+</html>
