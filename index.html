@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Automata Theory: Regex Filter System</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
         * {
             margin: 0;
             padding: 0;
@@ -12,204 +14,462 @@
         }
 
         body {
-            font-family: 'Helvetica', Arial, sans-serif;
-            background-color: #f0f2f5;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animated background particles */
+        .bg-animation {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 15s infinite;
+        }
+
+        .particle:nth-child(1) { width: 80px; height: 80px; left: 10%; animation-delay: 0s; }
+        .particle:nth-child(2) { width: 60px; height: 60px; left: 30%; animation-delay: 2s; }
+        .particle:nth-child(3) { width: 100px; height: 100px; left: 50%; animation-delay: 4s; }
+        .particle:nth-child(4) { width: 70px; height: 70px; left: 70%; animation-delay: 1s; }
+        .particle:nth-child(5) { width: 90px; height: 90px; left: 85%; animation-delay: 3s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
         }
 
         .container {
-            background-color: #f0f2f5;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
             width: 100%;
-            max-width: 500px;
-            padding: 20px;
+            max-width: 550px;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 10;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .header {
             text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-            color: #333;
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 14px;
+            color: #666;
             margin-bottom: 30px;
+            font-weight: 300;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .info-frame {
-            background-color: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .info-frame:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
         }
 
         .rules-title {
-            font-weight: bold;
-            color: #555;
-            margin-bottom: 8px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 12px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .rules-title::before {
+            content: "📋";
+            font-size: 20px;
         }
 
         .rules-list {
-            color: #555;
-            line-height: 1.6;
+            color: #444;
+            line-height: 1.8;
             text-align: left;
+            font-size: 14px;
+            font-weight: 400;
         }
 
-        .input-container {
-            margin-bottom: 20px;
-            text-align: center;
+        .input-wrapper {
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        .input-label {
+            font-size: 14px;
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: block;
         }
 
         #usernameInput {
             width: 100%;
-            max-width: 350px;
-            padding: 12px;
-            font-size: 16px;
+            padding: 16px 50px 16px 20px;
+            font-size: 18px;
             font-family: 'Courier New', monospace;
-            border: 2px solid #ddd;
-            border-radius: 6px;
+            border: 3px solid #e0e0e0;
+            border-radius: 12px;
             outline: none;
             transition: all 0.3s ease;
+            background: white;
+            font-weight: 500;
         }
 
         #usernameInput:focus {
-            border-color: #3498db;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
         }
 
         #usernameInput.valid {
-            color: #2ecc71;
-            border-color: #2ecc71;
+            color: #10b981;
+            border-color: #10b981;
+            animation: successPulse 0.5s ease;
         }
 
         #usernameInput.invalid {
-            color: #e74c3c;
-            border-color: #e74c3c;
+            color: #ef4444;
+            border-color: #ef4444;
+            animation: shake 0.4s ease;
+        }
+
+        @keyframes successPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .input-icon {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .input-icon.show {
+            opacity: 1;
+            animation: bounceIn 0.5s ease;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: translateY(-50%) scale(0); }
+            50% { transform: translateY(-50%) scale(1.2); }
+            100% { transform: translateY(-50%) scale(1); }
         }
 
         .status-label {
             text-align: center;
-            font-size: 14px;
-            font-weight: bold;
-            padding: 10px;
-            border-radius: 6px;
-            min-height: 40px;
+            font-size: 15px;
+            font-weight: 600;
+            padding: 16px;
+            border-radius: 12px;
+            min-height: 50px;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.3s ease;
+            gap: 8px;
         }
 
         .status-waiting {
-            color: #777;
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            color: #6b7280;
+            border: 2px solid #d1d5db;
         }
 
         .status-valid {
-            color: #2ecc71;
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #059669;
+            border: 2px solid #10b981;
+            animation: slideUp 0.4s ease;
         }
 
         .status-invalid {
-            color: #e74c3c;
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #dc2626;
+            border: 2px solid #ef4444;
+            animation: slideUp 0.4s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .character-counter {
+            text-align: right;
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 5px;
+            font-weight: 500;
+        }
+
+        .character-counter.valid {
+            color: #10b981;
+        }
+
+        .character-counter.invalid {
+            color: #ef4444;
+        }
+
+        /* Progress bar for character length */
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #e5e7eb;
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease, background 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .progress-fill.valid {
+            background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+        }
+
+        .progress-fill.invalid {
+            background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        /* Glowing effect for valid state */
+        .glow {
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); }
+            50% { box-shadow: 0 0 30px rgba(16, 185, 129, 0.6); }
         }
     </style>
 </head>
 <body>
+    <!-- Animated background particles -->
+    <div class="bg-animation">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
     <div class="container">
         <div class="header">Username Syntax Validator</div>
+        <div class="subtitle">Powered by Automata Theory & Regex</div>
         
         <div class="info-frame">
-            <div class="rules-title">RULES:</div>
+            <div class="rules-title">Validation Rules</div>
             <div class="rules-list">
-                1. Must start with a Letter.<br>
-                2. Length: 5 - 15 characters.<br>
-                3. Allowed: Alphanumeric & Underscore.<br>
-                4. Cannot end with an Underscore.
+                <strong>1.</strong> Must start with a Letter<br>
+                <strong>2.</strong> Length: 5 - 15 characters<br>
+                <strong>3.</strong> Allowed: Alphanumeric & Underscore<br>
+                <strong>4.</strong> Cannot end with an Underscore
             </div>
         </div>
 
-        <div class="input-container">
-            <input 
-                type="text" 
-                id="usernameInput" 
-                placeholder="Enter username..."
-                autocomplete="off"
-            >
+        <div class="input-wrapper">
+            <label class="input-label">Enter Username</label>
+            <div style="position: relative;">
+                <input 
+                    type="text" 
+                    id="usernameInput" 
+                    placeholder="Type here..."
+                    autocomplete="off"
+                    maxlength="20"
+                >
+                <span id="inputIcon" class="input-icon"></span>
+            </div>
+            <div class="character-counter" id="charCounter">0 / 15 characters</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
         </div>
 
         <div id="statusLabel" class="status-label status-waiting">
-            Waiting for input...
+            ⏳ Waiting for input...
         </div>
     </div>
 
     <script>
         // --- THEORETICAL DEFINITION ---
         // The Regex Pattern representing the Regular Language L:
-        // ^             : Start of string
-        // [a-zA-Z]      : Initial State (must be a letter)
-        // [a-zA-Z0-9_]  : Intermediate State transitions (alphanumeric + _)
-        // {3,13}        : Repeats previous set (adjusting for start/end char to equal 5-15 total)
-        // [a-zA-Z0-9]   : Final Acceptance State (must not end with underscore)
-        // $             : End of string
         const usernamePattern = /^[a-zA-Z][a-zA-Z0-9_]{3,13}[a-zA-Z0-9]$/;
 
         // Get DOM elements
         const usernameInput = document.getElementById('usernameInput');
         const statusLabel = document.getElementById('statusLabel');
+        const inputIcon = document.getElementById('inputIcon');
+        const charCounter = document.getElementById('charCounter');
+        const progressFill = document.getElementById('progressFill');
+        const container = document.querySelector('.container');
 
         // Validate input function
         function validateInput() {
             const currentText = usernameInput.value;
+            const length = currentText.length;
+
+            // Update character counter
+            charCounter.textContent = `${length} / 15 characters`;
+
+            // Update progress bar
+            const progress = Math.min((length / 15) * 100, 100);
+            progressFill.style.width = `${progress}%`;
 
             // Edge case: Empty string
             if (!currentText) {
-                statusLabel.textContent = 'Waiting for input...';
+                statusLabel.textContent = '⏳ Waiting for input...';
                 statusLabel.className = 'status-label status-waiting';
                 usernameInput.className = '';
+                inputIcon.className = 'input-icon';
+                inputIcon.textContent = '';
+                charCounter.className = 'character-counter';
+                progressFill.className = 'progress-fill';
+                container.classList.remove('glow');
                 return;
             }
 
             // --- THE VALIDATION (Simulating the Machine) ---
             if (usernamePattern.test(currentText)) {
                 // ACCEPT STATE
-                statusLabel.textContent = '✓ Valid Username';
+                statusLabel.textContent = '✓ Valid Username - Ready to use!';
                 statusLabel.className = 'status-label status-valid';
                 usernameInput.className = 'valid';
+                inputIcon.textContent = '✓';
+                inputIcon.className = 'input-icon show';
+                charCounter.className = 'character-counter valid';
+                progressFill.className = 'progress-fill valid';
+                container.classList.add('glow');
             } else {
                 // REJECT STATE (Trap State)
                 analyzeError(currentText);
                 usernameInput.className = 'invalid';
+                inputIcon.textContent = '✗';
+                inputIcon.className = 'input-icon show';
+                charCounter.className = 'character-counter invalid';
+                progressFill.className = 'progress-fill invalid';
+                container.classList.remove('glow');
             }
         }
 
         // Analyze error function
         function analyzeError(text) {
-            /**
-             * Provides detailed feedback on why the string was rejected,
-             * effectively describing which 'state' the automata failed at.
-             */
-            let msg = '✘ Invalid: ';
+            let msg = '✗ ';
+            let icon = '⚠️';
 
             if (text.length < 5) {
-                msg += 'Too short (min 5)';
+                msg += 'Too short (minimum 5 characters)';
+                icon = '📏';
             } else if (text.length > 15) {
-                msg += 'Too long (max 15)';
+                msg += 'Too long (maximum 15 characters)';
+                icon = '📏';
             } else if (!/^[a-zA-Z]/.test(text)) {
                 msg += 'Must start with a letter';
+                icon = '🔤';
             } else if (text[text.length - 1] === '_') {
-                msg += "Cannot end with '_'";
+                msg += "Cannot end with underscore '_'";
+                icon = '🚫';
             } else if (!/^[a-zA-Z0-9_]*$/.test(text)) {
-                msg += 'Illegal characters found';
+                msg += 'Illegal characters detected';
+                icon = '⛔';
             } else {
                 msg += 'Syntax error';
+                icon = '❌';
             }
 
-            statusLabel.textContent = msg;
+            statusLabel.textContent = `${icon} ${msg}`;
             statusLabel.className = 'status-label status-invalid';
         }
 
-        // Bind the input event to validator function
-        // This simulates the transition of states in an automata as inputs are consumed
+        // Event listeners
         usernameInput.addEventListener('input', validateInput);
         usernameInput.addEventListener('keyup', validateInput);
+
+        // Add enter key functionality
+        usernameInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter' && usernamePattern.test(usernameInput.value)) {
+                // Create a success animation
+                const originalText = statusLabel.textContent;
+                statusLabel.textContent = '🎉 Username Accepted!';
+                setTimeout(() => {
+                    statusLabel.textContent = originalText;
+                }, 2000);
+            }
+        });
+
+        // Focus input on page load
+        window.addEventListener('load', () => {
+            usernameInput.focus();
+        });
     </script>
 </body>
 </html>
